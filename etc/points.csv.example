@@ -1,0 +1,28 @@
+# ============================================================================
+# points.csv - eicd point (tag) table
+#
+# One point per line. Columns (all required, no spaces around commas):
+#
+#   tag      unique name, [A-Za-z0-9._-]            -> MQTT topic segment
+#   device   must match a [device.<name>] section in eicd.conf
+#   func     coil | discrete | holding | input      (Modbus table to read)
+#   addr     zero-based protocol address (0..65535)
+#   dtype    bit | u16 | s16 | u32 | s32 | f32
+#            (bit for coil/discrete, the rest for register tables)
+#   worder   32-bit word/byte order: ABCD | BADC | CDAB | DCBA
+#            (ignored for bit/u16/s16; ABCD = standard big-endian)
+#   scale    engineering = raw * scale + offset     (non-zero)
+#   offset   see above
+#   unit     free text, max 15 chars, JSON-safe
+#   deadband report-by-exception threshold in engineering units (>= 0)
+#
+# The addresses below match the bundled tools/modbus_sim.py process model.
+# ============================================================================
+tag,device,func,addr,dtype,worder,scale,offset,unit,deadband
+reactor_temp,simplc,holding,100,f32,ABCD,1.0,0.0,degC,0.2
+reactor_pressure,simplc,holding,102,f32,ABCD,1.0,0.0,bar,0.05
+cycle_counter,simplc,holding,104,u32,ABCD,1.0,0.0,count,0
+motor_speed,simplc,holding,106,u16,ABCD,1.0,0.0,rpm,2
+valve_position,simplc,input,200,u16,ABCD,1.0,0.0,percent,1
+pump_running,simplc,coil,5,bit,,1.0,0.0,,0
+alarm_high_temp,simplc,discrete,8,bit,,1.0,0.0,,0

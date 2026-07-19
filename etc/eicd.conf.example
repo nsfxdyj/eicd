@@ -1,0 +1,87 @@
+# ============================================================================
+# eicd.conf - Edge Industrial Communication Daemon configuration
+#
+# The defaults in this file target the bundled development simulators
+# (tools/modbus_sim.py and tools/mqtt_stub_broker.py) so the quick start in
+# README.md works out of the box. Production values are shown in comments.
+# ============================================================================
+
+[daemon]
+# PID file; also used to single-instance the daemon via flock().
+pid_file = /tmp/eicd-run/eicd.pid
+# pid_file = /var/lib/eicd/eicd.pid
+
+# Working/data directory (created if missing; future spool location).
+work_dir = /tmp/eicd-run
+# work_dir = /var/lib/eicd
+
+[log]
+# debug | info | warn | error
+level = info
+
+# Log file. Empty means stderr only (recommended under systemd, where the
+# journal captures stderr). Size-based rotation keeps one ".1" backup; use
+# logrotate(8) for real retention - SIGHUP reopens the file.
+file =
+# file = /var/log/eicd.log
+max_size_mb = 10
+syslog = false
+
+[gateway]
+# Point (tag) table, CSV format. See etc/points.csv.example.
+points_file = /tmp/eicd-run/points.csv
+# points_file = /etc/eicd/points.csv
+
+# Store-and-forward ring buffer capacity (messages). Each slot is ~1.4 KB.
+# Sizing: capacity >= (points x outage_seconds / report_interval_s) + margin.
+queue_capacity = 1024
+
+# Integrity report period: every point is re-published at least this often,
+# even when unchanged. 0 disables integrity reports (change-only mode).
+report_interval_s = 60
+
+# On shutdown, keep publishing queued messages for at most this long.
+drain_timeout_s = 10
+
+[mqtt]
+host = 127.0.0.1
+port = 1883
+client_id = eicd-gw-01
+# username = eicd
+# password = change-me
+keepalive_s = 60
+
+# QoS 1 (with PUBACK confirmation) is strongly recommended for telemetry.
+qos = 1
+retain = false
+
+# Published topics look like: <topic_prefix>/<device>/<tag>
+topic_prefix = factory/line1/eicd-gw-01
+
+# Exponential reconnect backoff bounds (seconds): min, doubling, capped at max.
+reconnect_min_s = 1
+reconnect_max_s = 60
+
+# ----------------------------------------------------------------------------
+# Development device: the bundled Modbus simulator.
+# ----------------------------------------------------------------------------
+[device.simplc]
+host = 127.0.0.1
+port = 1502
+unit_id = 1
+poll_interval_ms = 1000
+timeout_ms = 3000
+retry_interval_s = 5
+enabled = true
+
+# ----------------------------------------------------------------------------
+# Production example: a PLC on the control network.
+# ----------------------------------------------------------------------------
+# [device.plc_line1]
+# host = 192.168.10.15
+# port = 502
+# unit_id = 1
+# poll_interval_ms = 1000
+# timeout_ms = 3000
+# retry_interval_s = 5
+# enabled = true

@@ -1,0 +1,6 @@
+build/
+eicd
+*.o
+*.d
+core
+core.*

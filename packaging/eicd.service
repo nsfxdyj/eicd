@@ -1,0 +1,34 @@
+[Unit]
+Description=Edge Industrial Communication Daemon (eicd)
+Documentation=file:/usr/local/share/doc/eicd/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Run in the foreground; systemd handles restart and journaling.
+ExecStart=/usr/local/sbin/eicd -f -c /etc/eicd/eicd.conf
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5
+TimeoutStopSec=15
+
+# Run as a dedicated user:  useradd -r -s /usr/sbin/nologin -d /var/lib/eicd eicd
+User=eicd
+Group=eicd
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/eicd
+CapabilityBoundingSet=
+AmbientCapabilities=
+LockPersonality=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
