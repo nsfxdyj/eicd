@@ -9,6 +9,16 @@ on any Linux box, including ARM industrial gateways. The whole daemon is
 a single binary of ~3,500 lines of C, and every blocking call carries an
 explicit deadline, so no thread can hang indefinitely.
 
+## Demo
+
+Recorded live from the bundled simulators — config check, startup, live
+telemetry, a broker outage with store-and-forward recovery, and graceful
+shutdown (55 s):
+
+![eicd live demo](docs/demo.gif)
+
+Run it yourself in four commands: [Quick start](#quick-start-no-hardware).
+
 ## Features
 
 | Area | What you get |
