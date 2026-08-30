@@ -1,5 +1,8 @@
 # eicd — Edge Industrial Communication Daemon
 
+[![release](https://img.shields.io/github/v/release/nsfxdyj/eicd)](https://github.com/nsfxdyj/eicd/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 `eicd` is an edge gateway daemon that polls industrial devices over
 **Modbus TCP** (southbound) and publishes telemetry to an **MQTT** broker
 (northbound), with **store-and-forward** buffering to survive network
@@ -8,6 +11,31 @@ no libmodbus, no libmosquitto, no JSON library — so it builds and runs
 on any Linux box, including ARM industrial gateways. The whole daemon is
 a single binary of ~3,500 lines of C, and every blocking call carries an
 explicit deadline, so no thread can hang indefinitely.
+
+## What this is for
+
+You have a row of PLCs, meters, or drives speaking Modbus TCP, and you
+need their data in an MQTT-based platform — an energy dashboard, a
+historian, an alarm pipeline. `eicd` is the piece that sits in between.
+It does exactly one job and tries to be boring about it: poll registers,
+report changes, survive outages.
+
+Typical fits:
+
+- **Retrofit telemetry** for existing plants, where touching the control
+  network is not an option — put a cheap ARM gateway next to the PLC
+  cabinet and point it at your broker.
+- **A protocol front-end for cloud/SCADA teams** who want clean,
+  source-timestamped JSON instead of writing their own Modbus stack.
+- **Fleet deployments** where "zero dependencies" pays for itself: the
+  binary is ~60 KB, cross-compiles with one `make CC=...`, and needs
+  nothing on the target beyond a Linux kernel.
+
+It is not a SCADA system, not a forty-driver protocol converter, and not
+a no-code platform. If your site needs Modbus RTU (serial), TLS to the
+broker, or southbound writes, check the [Roadmap](#roadmap) first —
+some of it is scheduled, and the rest is the kind of work I do on
+commission (see [Customization and support](#customization-and-support)).
 
 ## Demo
 
@@ -452,6 +480,20 @@ In priority order:
 
 Always start with `./eicd -t -c <conf>` (config + points validation) and
 a foreground (`-f`) run in a terminal.
+
+## Customization and support
+
+`eicd` comes out of three years of shipping data-acquisition gateways in
+the power sector. If you need a variant — Modbus RTU on a serial port,
+TLS to the broker, disk spooling for long outages, a different payload
+schema (Sparkplug B, or whatever your platform expects), IEC 60870-5-101
+on the southbound side, or a hardened deployment for a specific device —
+that is consulting work I do. I also take on custom edge-gateway
+development and private-deployment support more generally.
+
+- Email: nsfxdyj@gmail.com
+- Or open an issue in this repository — I read those faster than my
+  inbox.
 
 ## License
 
