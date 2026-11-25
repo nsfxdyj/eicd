@@ -29,7 +29,12 @@ DEPS := $(OBJS:.o=.d)
 PREFIX     ?= /usr/local
 SYSCONFDIR ?= /etc
 
-.PHONY: all clean install uninstall
+TEST_TARGET := $(OBJDIR)/test_eicd
+TEST_SRCS := tests/test_eicd.c \
+             src/util.c src/ringbuf.c src/points.c src/config.c src/log.c \
+             src/modbus_tcp.c src/mqtt_client.c
+
+.PHONY: all clean install uninstall test
 
 all: $(TARGET)
 
@@ -41,6 +46,12 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
+
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
+
+$(TEST_TARGET): $(TEST_SRCS) | $(OBJDIR)
+	$(CC) $(CFLAGS) -o $@ $(TEST_SRCS) $(LDLIBS)
 
 install: $(TARGET)
 	install -d $(DESTDIR)$(PREFIX)/sbin
