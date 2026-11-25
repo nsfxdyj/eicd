@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install C toolchains
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang make
+      - name: Build the daemon with ${{ matrix.cc }}
+        run: make CC=${{ matrix.cc }}
+      - name: Run reliability tests with ${{ matrix.cc }}
+        run: make test CC=${{ matrix.cc }}
+
+  sanitize:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, clang]
+    env:
+      ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+      UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install C toolchains
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang make
+      - name: Run ASan and UBSan with ${{ matrix.cc }}
+        run: make test CC=${{ matrix.cc }} OPT="-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer"

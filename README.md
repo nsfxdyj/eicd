@@ -149,6 +149,21 @@ The build uses `-Wall -Wextra -Wshadow -Wformat=2 -Wstrict-prototypes
 `configure` step and no dependency to install; cross-compiling is a
 matter of `make CC=arm-linux-gnueabihf-gcc`.
 
+## Testing
+
+```sh
+make test
+```
+
+The reliability suite covers Modbus CRC/MBAP framing, all four 32-bit
+word orders, invalid float input, ring wrap with stale peek/commit,
+fragmented and coalesced Modbus responses, peer disconnects, and MQTT
+remaining-length plus QoS 1 PUBACK handling. Network tests use local
+`socketpair` endpoints and require no external PLC or broker.
+
+CI builds the daemon and runs this suite with both GCC and Clang, then
+repeats it with AddressSanitizer and UndefinedBehaviorSanitizer.
+
 ## Quick start (no hardware)
 
 The repository ships with two development tools: a Modbus TCP simulator
